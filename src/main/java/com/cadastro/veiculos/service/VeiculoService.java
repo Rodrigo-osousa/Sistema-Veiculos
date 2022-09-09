@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -37,8 +38,8 @@ public class VeiculoService {
         veiculo.setAno(veiculoDTO.getAno());
         veiculo.setCor(veiculoDTO.getCor());
         veiculo.setVendido(veiculoDTO.isVendido());
-        veiculo.setCreated(LocalDateTime.now());
-        veiculo.setUpdated(LocalDateTime.now());
+        veiculo.setCreated(formatDate());
+        veiculo.setUpdated(formatDate());
 
         veiculoRepository.save(veiculo);
         return veiculo;
@@ -57,7 +58,7 @@ public class VeiculoService {
         upVeiculo.setCreated(findVeiculo.get().getCreated());
         upVeiculo.setDescricao(veiculo.getDescricao());
         upVeiculo.setCor(veiculo.getCor());
-        upVeiculo.setUpdated(LocalDateTime.now());
+        upVeiculo.setUpdated(formatDate());
 
         return veiculoRepository.save(upVeiculo);
     }
@@ -96,13 +97,20 @@ public class VeiculoService {
 
     public Veiculo updateParcialVeiculo(Long id, Map<Object, Object> objectMap) throws VeiculoException {
         Veiculo veiculo = veiculoRepository.findById(id).orElseThrow(() -> new VeiculoException("Veículo não Cadastrado!"));
-        veiculo.setUpdated(LocalDateTime.now());
         objectMap.forEach((key, value) -> {
             Field field = org.springframework.util.ReflectionUtils.findField(Veiculo.class, (String) key);
-            field.setAccessible(true);
+            veiculo.setUpdated(formatDate());
             ReflectionUtils.setField(field, veiculo, value);
         });
         return veiculoRepository.save(veiculo);
+    }
+
+    private LocalDateTime formatDate() {
+        LocalDateTime agora = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyy HH:mm:ss");
+        String agoraFormatado = agora.format(formatter);
+        return LocalDateTime.parse(agoraFormatado, formatter);
+
     }
 
 }
