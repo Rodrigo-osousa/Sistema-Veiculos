@@ -96,6 +96,7 @@ public class VeiculoService {
 
     public Veiculo updateParcialVeiculo(Long id, Map<Object, Object> objectMap) throws VeiculoException {
         Veiculo veiculo = veiculoRepository.findById(id).orElseThrow(() -> new VeiculoException("Veículo não Cadastrado!"));
+        veiculo.setUpdated(LocalDateTime.now());
         objectMap.forEach((key, value) -> {
             Field field = org.springframework.util.ReflectionUtils.findField(Veiculo.class, (String) key);
             field.setAccessible(true);
